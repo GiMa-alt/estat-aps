@@ -1,0 +1,98 @@
+# A) propor??o de Churn (YES, NO)
+churn_table =  data.frame(round(prop.table(table(churn$Churn)), 2))
+colnames(churn_table) = c("Churn", "Proporção")
+View(churn_table)
+table(churn$Churn)
+
+
+# B) Gender Churn Proportion
+
+# B1)
+par(mfrow=c(1,1))
+
+
+barplot(prop.table(table(churn$Churn, churn$gender),margin = 2)*100,  ylab = "Proporção em %", main = "Proporção de Churn baseado no gênero",legend = TRUE, args.legend = list(title= "Churn"), ylim = c(0,100) )
+
+
+# B2)
+par(mfrow = c(1,1))
+barplot(prop.table(table(churn$Churn, churn$SeniorCitizen), margin = 2)*100, ylab = "Proporção em %", main = "Proporção de Churn baseado em Sênior", legend = TRUE, args.legend = list(title = "Churn"), ylim = c(0,100), xlab = "Não sênior(0) e Sênior(1)")
+
+
+
+# C) medidas numericas para Tenure em rela??o ao churn realizado ou n?o
+
+churn$tenure = as.numeric(unlist(churn$tenure))
+
+media_tenure_churn = tapply(churn$tenure, churn$Churn, mean)
+mediana_tenure_churn = tapply(churn$tenure, churn$Churn, median)
+sd_tenure_churn = tapply(churn$tenure, churn$Churn, sd)
+max_tenure_churn = tapply(churn$tenure, churn$Churn, max)
+min_tenure_churn = tapply(churn$tenure, churn$Churn, min)
+medidas_tenure = data.frame(media_tenure_churn, mediana_tenure_churn, sd_tenure_churn, max_tenure_churn, min_tenure_churn)
+colnames(medidas_tenure) <- c("Média", "Mediana", "Desv.Pad.", "Maximo", "Minimo")
+View(t(medidas_tenure))
+hist(churn$tenure[churn$Churn=="Yes"], main = "Histograma de tenure para Churn realizado", xlab = "Quantidade de tempo em contrato, em meses", ylim = c(0,800))
+hist(churn$tenure[churn$Churn=="No"], main = "Histograma de tenure para Churn não realizado", xlab = "Quantidade de tempo em contrato, em meses", ylim= c(0,700))
+
+# D) analise de produtos com churn
+par(mfrow = c(1,3))
+
+barplot(prop.table(table(churn$Churn, churn$PhoneService), margin = 2)*100, ylab = "Proporção em %", main = "Proporção de Churn para Phone Services", legend = TRUE, args.legend = list(title= "Churn"), ylim = c(0,100), xlab = "Não contratado(No) e Contratado(Yes)")
+
+barplot(prop.table(table(churn$Churn, churn$OnlineBackup), margin = 2)*100, ylab = "Proporção em %", main = "Proporção de Churn para Online Backup", legend = TRUE, args.legend = list(title= "Churn"), ylim = c(0,100), xlab = "Não contratado(No) e Contratado(Yes)")
+
+barplot(prop.table(table(churn$Churn, churn$StreamingMovies), margin = 2)*100, ylab = "Proporção em %", main = "Proporção de Churn para Streaming Movies", legend = TRUE, args.legend = list(title= "Churn"), ylim = c(0,100), xlab="Não contratado(No) e Contratado(Yes)")
+
+
+
+# E) 
+
+churn$MonthlyCharges = as.numeric(unlist(churn$MonthlyCharges))
+churn$QtyServices = as.numeric((unlist(churn$QtyServices)))
+churn$MCperQTY = cbind(churn$MonthlyCharges/churn$QtyServices)
+colnames(churn$MCperQTY) = c("MCperQTY")
+View(churn$MCperQTY)
+
+# F)
+
+media_MCperQTY_churn = tapply(churn$MCperQTY, churn$Churn, mean)
+
+mediana_MCperQTY_churn = tapply(churn$MCperQTY, churn$Churn, median)
+
+sd_MCperQTY_churn = tapply(churn$MCperQTY, churn$Churn, sd)
+
+cv_MCperQTY_churn = (sd_MCperQTY_churn / media_MCperQTY_churn)*100
+
+max_MCperQTY_churn = tapply(churn$MCperQTY, churn$Churn, max)
+
+min_MCperQTY_churn = tapply(churn$MCperQTY, churn$Churn, min)
+churn_MCperQTY_dataframe = data.frame(media_MCperQTY_churn, mediana_MCperQTY_churn, sd_MCperQTY_churn, cv_MCperQTY_churn, max_MCperQTY_churn, min_MCperQTY_churn)
+colnames(churn_MCperQTY_dataframe) = c("Média", "Mediana", "Desv. Pad.", "Coef. Var.", "Máximo", "Mínimo")
+View(churn_MCperQTY_dataframe)
+
+par(mfrow = c(2,1))
+hist(churn$MCperQTY[churn$Churn=="Yes"], xlab = "Valor pago por mês por serviço", breaks = 15, main = "Histograma de MCperQTY para Churn realizado")
+hist(churn$MCperQTY[churn$Churn=="No"], xlab = "Valor pago por mês por serviço", breaks = 15, main = "Histograma de MCperQTY para Churn não realizado")
+
+
+# G)
+
+media_contract_MCperQTY = tapply(churn$MCperQTY, churn$Contract, mean)
+mediana_contract_MCperQTY = tapply(churn$MCperQTY, churn$Contract, median)
+sd_contract_MCperQTY = tapply(churn$MCperQTY, churn$Contract, sd)
+cv_contract_MCperQTY = (sd_contract_MCperQTY/media_contract_MCperQTY)*100
+max_contract_MCperQTY = tapply(churn$MCperQTY, churn$Contract, max)
+min_contract_MCperQTY = tapply(churn$MCperQTY, churn$Contract, min)
+contract_MCperQTY_dataframe = data.frame(media_contract_MCperQTY, mediana_contract_MCperQTY, sd_contract_MCperQTY, cv_contract_MCperQTY, max_contract_MCperQTY, min_contract_MCperQTY)
+colnames(contract_MCperQTY_dataframe) = c("Média", "Mediana", "Desv. Pad.", "Coef. Var.", "Máximo", "Mínimo")
+View(contract_MCperQTY_dataframe)
+
+par(mfrow = c(3,1))
+hist(churn$MCperQTY[churn$Contract=="Month-to-month"], main = "Histograma de MCperQTY para contrato Month-to-month", xlab = "MCperQTY")
+hist(churn$MCperQTY[churn$Contract=="One year"], main = "Histograma de MCperQTY para contrato One year", xlab = "MCperQTY")
+hist(churn$MCperQTY[churn$Contract=="Two year"], main = "Histograma de MCperQTY para contrato Two year", xlab = "MCperQTY")
+
+
+
+
